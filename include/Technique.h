@@ -10,6 +10,7 @@ private:
 	struct PassInfo 
 	{
 		std::shared_ptr<Pass> pass;
+		std::shared_ptr<Technique> tech; //owner
 		bool isActive;
 	};
 	
@@ -33,6 +34,13 @@ public:
 	bool AddPass(std::shared_ptr<Pass> pass);
 	std::shared_ptr<Pass> CreatePass(const char* name); //new
 	
+	bool AddSubTechnique(std::shared_ptr<Technique> tech); //new
+	
+	void SetSubTechniqueActive(std::shared_ptr<Technique> tech, bool active); //new
+	bool GetSubTechniqueActive(std::shared_ptr<Technique> tech) const; //new
+	
+	bool ContainsSubTechnique(std::shared_ptr<Technique> tech) const; //new
+	
 	void InsertPass(int index, std::shared_ptr<Pass> pass); //new
 	
 	void ReplacePass(std::shared_ptr<Pass> pass); //new
@@ -42,22 +50,24 @@ public:
 	bool RemovePass(std::shared_ptr<Pass> pass);
 	bool RemovePass(const char* name); //new
 	bool RemovePass(int index); //new
-	bool RemovePasses(int srcIndex, int dstIndex);
+	bool RemovePasses(int srcIndex, int dstIndex); //new
 	
-	bool ClearPasses(); //new
+	bool ClearPasses() { m_Passes.clear(); } //new
 	
 	void MovePass(int srcIndex, int dstIndex); //new
 	
 	bool ContainsPass(std::shared_ptr<Pass> pass) const; //new
 	
-	int GetNumPasses() const { return (int)m_Passes.size(); 
+	int GetNumPasses() const { return (int)m_Passes.size(); }
 	
 	void SetPassActive(int index,bool active);
-	void SetPassActive(const char* name,bool active);
+	void SetPassActive(std::shared_ptr<Pass> pass, bool active); //new
+	void SetPassActive(const char* name, bool active);
 	
 	bool GetPassActive(int index) const;
+	bool GetPassActive(std::shared_ptr<Pass> pass) const; //new
 	bool GetPassActive(const char* name) const;
-	
+
 	std::shared_ptr<Pass> GetPass(int index);
 	const std::shared_ptr<Pass> GetPass(int index) const; //new
 		
