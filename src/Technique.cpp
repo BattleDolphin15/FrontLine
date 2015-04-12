@@ -49,22 +49,26 @@ bool Technique::AddPass(std::shared_ptr<Pass> pass)
 
 std::shared_ptr<Pass> Technique::CreatePass(const char* name)
 {
+	return nullptr;
 }
 
 bool Technique::AddSubTechnique(std::shared_ptr<Technique> tech)
 {
+	return true;
 }
 
 void Technique::SetSubTechniqueActive(std::shared_ptr<Technique> tech, bool active)
 {
 }
 
-bool Technique::ContainsSubTechnique(std::shared_ptr<Technique> tech)
+bool Technique::ContainsSubTechnique(std::shared_ptr<Technique> tech) const
 {
+	return true;
 }
 
 bool Technique::GetSubTechniqueActive(std::shared_ptr<Technique> tech) const
 {
+	return false;
 }
 
 void Technique::InsertPass(int index, std::shared_ptr<Pass> pass)
@@ -99,14 +103,17 @@ bool Technique::RemovePass(std::shared_ptr<Pass> pass)
 
 bool Technique::RemovePass(const char* name)
 {
+	return true;
 }
 
 bool Technique::RemovePass(int index)
 {
+	return true;
 }
 
 bool Technique::RemovePasses(int srcIndex, int dstIndex)
 {
+	return true;
 }
 
 void Technique::MovePass(int srcIndex, int dstIndex)
@@ -115,6 +122,7 @@ void Technique::MovePass(int srcIndex, int dstIndex)
 
 bool Technique::ContainsPass(std::shared_ptr<Pass> pass) const
 {
+	return false;
 }
 
 void Technique::SetPassActive(int index, bool active) 
@@ -126,7 +134,7 @@ void Technique::SetPassActive(int index, bool active)
 	m_Passes[index].isActive = active;
 }
 
-bool Technique::SetPassActive(std::shared_ptr<Pass> pass, bool active)
+void Technique::SetPassActive(std::shared_ptr<Pass> pass, bool active)
 {
 }
 
@@ -153,6 +161,7 @@ bool Technique::GetPassActive(int index) const
 
 bool Technique::GetPassActive(std::shared_ptr<Pass> pass) const
 {
+	return true;
 }
 
 bool Technique::GetPassActive(const char* name) const

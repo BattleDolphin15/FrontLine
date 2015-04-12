@@ -1,7 +1,7 @@
 #pragma once
 #include "Pass.h"
 
-class Material;
+class Effect;
 
 class Technique
 	: public std::enable_shared_from_this<Technique>
@@ -16,7 +16,7 @@ private:
 	
 	std::vector<PassInfo> m_Passes;
 	
-	std::weak_ptr<Material> m_Parent;
+	std::weak_ptr<Effect> m_Parent;
 	
 	const char* m_Name;
 public:
@@ -26,7 +26,7 @@ public:
 	void SetName(const char* name) {m_Name = name;}
 	const char* GetName() { return m_Name; }
 	
-	void SetParent(std::shared_ptr<Parent> parent);
+	void SetParent(std::shared_ptr<Effect> parent) { m_Parent = parent; }
 	
 	bool Validate();
 	bool Invalidate();

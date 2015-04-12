@@ -2,6 +2,7 @@
 #include "PassDesc.h"
 
 class Technique;
+class EffectVisitor;
 
 class Pass
 	: public std::enable_shared_from_this<Pass>
@@ -41,11 +42,11 @@ public:
 	void SetParent(std::shared_ptr<Technique> parent) {m_Parent = parent;}
 	
 	void SetName(const char* name) {m_Name = name;}
-	const char* GetName() {return m_Name;}
+	const char* GetName() { return m_Name; }
 	
-	bool IsValid() {return m_Validated;}
+	bool IsValid() { return m_Validated; }
 	
-	bool Accept(std::shared_ptr<MaterialVisitor> visitor); //new
+	bool Accept(std::shared_ptr<EffectVisitor> visitor) { return true; } //new, not implemented yet
 	
 	static void ConfigureExecution(std::vector<fxState> flags) { m_ExecutionConfig = flags; }
 
@@ -55,6 +56,10 @@ public:
 	bool Invalidate();
 
 	void SetActiveLayer(int layer, bool copyFromPrev); 
+
+	//forces validation upon this passdesc and marks it as validated
+	bool ForceValidate(std::shared_ptr<PassDesc> data);
+	bool ForceValidate(std::vector<std::shared_ptr<PassDesc>>& data) { return true; }
 
 	void CreateData(std::shared_ptr<PassDesc> data); 
 	void CreateDataOverride(std::shared_ptr<PassDesc> data); 
@@ -72,7 +77,7 @@ public:
 	std::shared_ptr<PassDesc> Find(fxState flag);
 	const std::shared_ptr<PassDesc> Find(fxState flag) const; //new
 	
-	void Find(fxState flag, std::vector<std::shared_ptr<PassDesc>>* data) const;
+	void Find(fxState flag, std::vector<std::shared_ptr<PassDesc>>* data); //too lazy to const overload the vector
 
 	std::shared_ptr<PassDesc> FindOverride(const char* name);
 	const std::shared_ptr<PassDesc> FindOverride(const char* name) const; //new
@@ -80,15 +85,16 @@ public:
 	std::shared_ptr<PassDesc> FindOverride(fxState flag);
 	const std::shared_ptr<PassDesc> FindOverride(fxState flag) const; //new
 	
-	void FindOverride(fxState flag, std::vector<std::shared_ptr<PassDesc>>* data) const;
+	void FindOverride(fxState flag, std::vector<std::shared_ptr<PassDesc>>* data);
 	
-	bool ContainsData(std::shared_ptr<PassDesc> data); //new
+	bool ContainsData(std::shared_ptr<PassDesc> data) const; //new, make parameter const?
 
+	//detach the data here
 	bool RemoveData(std::shared_ptr<PassDesc> data);
 	bool RemoveData(const char* name);
 	bool RemoveData(fxState flag);
 	
-	void ClearData() {m_Layers[m_ActiveLayer].dataForExecution.clear();}
+	void ClearData() { m_Layers[m_ActiveLayer].dataForExecution.clear(); }
 
 	void SetupOverrides(std::shared_ptr<Technique>* dest,int numTechs);
 	void SetupOverrides(std::shared_ptr<Pass>* dest,int numPasses);
@@ -99,15 +105,15 @@ public:
 	bool RemoveLayer(int layer);
 	bool RemoveActiveLayer();
 
-	const Layer& GetLayer() const {return m_Layers[m_ActiveLayer];}
-	const Layer& GetBaseLayer() const {return m_Layers[0];}
+	const Layer& GetLayer() const { return m_Layers.find(m_ActiveLayer)->second; }
+	const Layer& GetBaseLayer() const { return m_Layers.find(0)->second; }
 	
-	int GetActiveLayerId() {return m_ActiveLayer;}
+	int GetActiveLayerId() const { return m_ActiveLayer; }
 	
-	int GetNumPassDesc() { return m_Layers[m_ActiveLayer].dataForExecution.size(); }
-	int GetNumPassDescInAllLayers(); //sums up all the layers' passdesc count
+	int GetNumPassDesc() const { return (int)m_Layers.find(m_ActiveLayer)->second.dataForExecution.size(); }
+	int GetNumPassDescInAllLayers() const; //sums up all the layers' passdesc count
 	
-	int GetNumLayers() { return m_Layers.size(); }
+	int GetNumLayers() const { return (int)m_Layers.size(); }
 	
 friend class PassDesc;
 };

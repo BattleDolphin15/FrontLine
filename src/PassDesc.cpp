@@ -11,17 +11,27 @@ PassDesc::PassDesc(fxState flag,const char* name)
 
 PassDesc::~PassDesc() 
 {
+	//detach the children
 	for (auto iter = m_Data.begin(); iter != m_Data.end(); iter++)
 	{
 		//clear this data from owners
 		Detach(iter->flag, iter->name);
 	}
+	
+	//detach from parent
+	for (auto iter = m_Owners.begin(); iter != m_Owners.end(); iter++)
+	{
+		//clear this data from owners
+		std::shared_ptr<PassDesc> data = GetFromData(*iter);
+		if(data)
+			data->Detach(shared_from_this());
+	}
 }
 
 bool PassDesc::Attach(std::shared_ptr<PassDesc> dep)
 {
-	if (m_Parent.lock() && dep->m_Parent.lock())
-	{
+	//if (m_Parent.lock() && dep->m_Parent.lock())
+	//{
 		Dependency data;
 		data.name = dep->GetName();
 		data.flag = dep->GetFlag();
@@ -33,12 +43,13 @@ bool PassDesc::Attach(std::shared_ptr<PassDesc> dep)
 		dep->m_Owners.push_back(owner);
 
 		return true;
-	}
-	return false;
+	//}
+	//return false;
 }
 
 bool PassDesc::Attach(fxState flag, const char* name)
 {
+	//this one is the only if parents
 	if (m_Parent.lock())
 	{
 		std::shared_ptr<PassDesc> attached = NULL;
@@ -107,7 +118,7 @@ bool PassDesc::Detach(std::shared_ptr<PassDesc> dep)
 				if (strcmp(iter->name, GetName()) == 0)
 				{
 					//remove
-					m_Data.erase(iter);
+					dep->m_Owners.erase(iter);
 					return true;
 				}
 			}
@@ -125,7 +136,7 @@ bool PassDesc::Detach(std::shared_ptr<PassDesc> dep)
 						return false;
 				}
 				//now that we know theres only one of this flag, now remove
-				m_Data.erase(iter);
+				dep->m_Owners.erase(iter);
 				return true;
 			}
 			iter++;
@@ -191,7 +202,7 @@ bool PassDesc::Detach(fxState flag, const char* name)
 				if (strcmp(iter->name, GetName()) == 0)
 				{
 					//remove
-					m_Data.erase(iter);
+					data->m_Owners.erase(iter);
 					return true;
 				}
 			}
@@ -209,7 +220,7 @@ bool PassDesc::Detach(fxState flag, const char* name)
 						return false;
 				}
 				//now that we know theres only one of this flag, now remove
-				m_Data.erase(iter);
+				data->m_Owners.erase(iter);
 				return true;
 			}
 			iter++;
@@ -239,6 +250,27 @@ std::shared_ptr<PassDesc> PassDesc::GetFromData(Dependency dep)
 	return NULL;
 }
 
+const std::shared_ptr<PassDesc> PassDesc::GetFromData(Dependency dep) const
+{
+	if (!m_Parent.lock())
+		return NULL;
+	std::shared_ptr<Pass> parent = m_Parent.lock();
+	std::shared_ptr<PassDesc> data = parent->Find(dep.name);
+	if (data)
+	{
+		return data;
+	}
+	else
+	{
+		data = parent->Find(dep.flag);
+		if (data)
+		{
+			return data;
+		}
+	}
+	return NULL;
+}
+
 //only accept flags here because names are specific while flags are generic
 void PassDesc::GetFromData(fxState flag, std::vector<std::shared_ptr<PassDesc>>* data)
 {
@@ -248,7 +280,7 @@ void PassDesc::GetFromData(fxState flag, std::vector<std::shared_ptr<PassDesc>>*
 	}
 }
 
-std::vector<std::shared_ptr<PassDesc>>* PassDesc::GetVecFromData()
+std::vector<std::shared_ptr<PassDesc>>& PassDesc::GetVecFromData()
 {
 	std::vector<std::shared_ptr<PassDesc>> dataVec;
 	for (auto iter = m_Data.begin(); iter != m_Data.end(); iter++)
@@ -257,10 +289,10 @@ std::vector<std::shared_ptr<PassDesc>>* PassDesc::GetVecFromData()
 		if (data)
 			dataVec.push_back(data);
 	}
-	return &dataVec;
+	return dataVec;
 }
 
-std::vector<std::shared_ptr<PassDesc>>* PassDesc::GetVecFrormOwners()
+std::vector<std::shared_ptr<PassDesc>>& PassDesc::GetVecFrormOwners()
 {
 	std::vector<std::shared_ptr<PassDesc>> dataVec;
 	for (auto iter = m_Owners.begin(); iter != m_Owners.end(); iter++)
@@ -269,5 +301,24 @@ std::vector<std::shared_ptr<PassDesc>>* PassDesc::GetVecFrormOwners()
 		if (data)
 			dataVec.push_back(data);
 	}
-	return &dataVec;
+	return dataVec;
+}
+
+void PassDesc::InvalidateAttachments()
+{
+	//detach the children
+	for (auto iter = m_Data.begin(); iter != m_Data.end(); iter++)
+	{
+		//clear this data from owners
+		Detach(iter->flag, iter->name);
+	}
+	
+	//detach from parent
+	for (auto iter = m_Owners.begin(); iter != m_Owners.end(); iter++)
+	{
+		//clear this data from owners
+		std::shared_ptr<PassDesc> data = GetFromData(*iter);
+		if(data)
+			data->Detach(shared_from_this());
+	}
 }

@@ -1,6 +1,7 @@
 #include "Pass.h"
-
+#include "Technique.h"
 #include "PassDesc.h"
+#include "Effect.h"
 #include "Pass.h"
 
 std::vector<fxState> Pass::m_ExecutionConfig;
@@ -22,6 +23,16 @@ bool Pass::Validate()
 {
 	std::cout<<"Calling Validate from Pass at layer: "<<m_ActiveLayer<<std::endl;
 	PassDataVec& dataForExecution = m_Layers[m_ActiveLayer].dataForExecution;
+	
+	//validate attachments fist
+	for (auto iter = dataForExecution.begin(); iter != dataForExecution.end(); iter++) 
+	{
+		if (!(*iter)->IsValid()) 
+		{
+			(*iter)->ValidateAttachments();
+		}
+	}
+	
 	for (auto iter = dataForExecution.begin(); iter != dataForExecution.end(); iter++) 
 	{
 		if (!(*iter)->IsValid()) 
@@ -84,6 +95,7 @@ bool Pass::Invalidate()
 {
 	std::cout<<"Calling Invalidate from Pass at layer: "<<m_ActiveLayer<<std::endl;
 	PassDataVec& dataForExecution = m_Layers[m_ActiveLayer].dataForExecution;
+	
 	for(auto iter = dataForExecution.begin(); iter != dataForExecution.end(); iter++) 
 	{
 		if ((*iter)->IsValid()) 
@@ -95,6 +107,16 @@ bool Pass::Invalidate()
 		}
 		(*iter)->SetValidated(false);
 	}
+	
+	//invalidate attachments after cuz data invalidation may rely on attachments
+	for(auto iter = dataForExecution.begin(); iter != dataForExecution.end(); iter++) 
+	{
+		if ((*iter)->IsValid()) 
+		{
+			(*iter)->InvalidateAttachments();
+		}
+	}
+	
 	m_Validated = false;
 	return true;
 }
@@ -130,6 +152,16 @@ void Pass::SetActiveLayer(int layer, bool copyFromPrev)
 	std::cout<<"Set ActiveLayer to: "<<m_ActiveLayer<<std::endl;
 }
 
+bool Pass::ForceValidate(std::shared_ptr<PassDesc> data)
+{
+	bool res = false;
+	if (data->IsValid())
+		return false;
+	res = data->Validate();
+	data->SetValidated(true);
+	return res;
+}
+
 void Pass::CreateData(std::shared_ptr<PassDesc> data) 
 {
 	PassDataVec& dataForExecution = m_Layers[m_ActiveLayer].dataForExecution;
@@ -149,8 +181,12 @@ void Pass::CreateData(std::shared_ptr<PassDesc> data)
 	}
 	
 	data->SetParent(shared_from_this()); //this line >:(
+	
+	//warning, creating data after Pass::Validate may cause data dependency problems
 	if(m_Validated) 
 	{ //if(m_Validated) //if the pass was already validated, validate here then for consistency
+		std::cout<<"Warning! Validating data after Pass::Validate() may create data dependency problems!"<<std::endl;
+		data->ValidateAttachments();
 		data->Validate();
 		data->m_Validated = true; //set flag here too
 	}
@@ -267,7 +303,8 @@ std::shared_ptr<PassDesc> Pass::Find(const char* name)
 
 const std::shared_ptr<PassDesc> Pass::Find(const char* name) const 
 {
-	PassDataVec& dataForExecution = m_Layers[m_ActiveLayer].dataForExecution;
+	//but protection... wut if data doesnt exist
+	const PassDataVec& dataForExecution = m_Layers.find(m_ActiveLayer)->second.dataForExecution;
 	for(auto iter = dataForExecution.begin(); iter != dataForExecution.end();) 
 	{
 		if((*iter)->m_Name) 
@@ -298,7 +335,7 @@ std::shared_ptr<PassDesc> Pass::Find(fxState flag)
 
 const std::shared_ptr<PassDesc> Pass::Find(fxState flag) const
 {
-	PassDataVec& dataForExecution = m_Layers[m_ActiveLayer].dataForExecution;
+	const PassDataVec& dataForExecution = m_Layers.find(m_ActiveLayer)->second.dataForExecution;
 	for(auto iter = dataForExecution.begin(); iter != dataForExecution.end();) 
 	{
 		if((*iter)->m_Flag == flag) 
@@ -310,7 +347,7 @@ const std::shared_ptr<PassDesc> Pass::Find(fxState flag) const
 	return NULL;
 }
 
-void Pass::Find(fxState flag, std::vector<std::shared_ptr<PassDesc>>* data) const
+void Pass::Find(fxState flag, std::vector<std::shared_ptr<PassDesc>>* data)
 {
 	std::vector<std::shared_ptr<PassDesc>> sortedData;
 	PassDataVec& dataForExecution = m_Layers[m_ActiveLayer].dataForExecution;
@@ -382,7 +419,7 @@ const std::shared_ptr<PassDesc> Pass::FindOverride(fxState flag) const
 	return NULL;
 }
 
-void Pass::FindOverride(fxState flag, std::vector<std::shared_ptr<PassDesc>>* data) const
+void Pass::FindOverride(fxState flag, std::vector<std::shared_ptr<PassDesc>>* data)
 {
 	std::vector<std::shared_ptr<PassDesc>> sortedData;
 	for (auto iter = m_Overrides.begin(); iter != m_Overrides.end(); iter++) 
@@ -395,9 +432,9 @@ void Pass::FindOverride(fxState flag, std::vector<std::shared_ptr<PassDesc>>* da
 	data = &sortedData;
 }
 
-bool Pass::ContainsData(std::shared_ptr<PassDesc> data)
+bool Pass::ContainsData(std::shared_ptr<PassDesc> data) const
 {
-	PassDataVec& dataForExecution = m_Layers[m_ActiveLayer].dataForExecution;
+	const PassDataVec& dataForExecution = m_Layers.find(m_ActiveLayer)->second.dataForExecution;
 	for(auto iter = dataForExecution.begin(); iter != dataForExecution.end();) 
 	{
 		if((*iter) == data)
@@ -414,6 +451,8 @@ bool Pass::RemoveData(std::shared_ptr<PassDesc> data)
 		if((*iter) == data) 
 		{
 			(*iter)->Invalidate();
+			//invalidate attachments last always
+			(*iter)->InvalidateAttachments();
 			(*iter)->m_Validated = false;
 			dataForExecution.erase(iter);
 			return true;
@@ -432,6 +471,7 @@ bool Pass::RemoveData(const char* name)
 		{
 			if(strcmp((*iter)->m_Name,name) == 0) {
 				(*iter)->Invalidate();
+				(*iter)->InvalidateAttachments();
 				(*iter)->m_Validated = false;
 				dataForExecution.erase(iter);
 				return true;
@@ -451,6 +491,7 @@ bool Pass::RemoveData(fxState flag)
 		if((*iter)->m_Flag == flag) 
 		{
 			(*iter)->Invalidate();
+			(*iter)->InvalidateAttachments();
 			(*iter)->m_Validated = false;
 			dataForExecution.erase(iter);
 			removed = true;
@@ -538,12 +579,12 @@ bool Pass::RemoveLayer(int layer)
 	return true;
 }
 
-int Pass::GetNumPassDescInAllLayers()
+int Pass::GetNumPassDescInAllLayers() const
 {
 	int count = 0;
 	for(auto iter = m_Layers.begin(); iter != m_Layers.end(); iter++)
 	{
-		count += iter->dataforExecution.size();
+		count += iter->second.dataForExecution.size();
 	}
 	return count;
 }
