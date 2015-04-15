@@ -61,6 +61,9 @@ public:
 	bool ForceValidate(std::shared_ptr<PassDesc> data);
 	bool ForceValidate(std::vector<std::shared_ptr<PassDesc>>& data) { return true; }
 
+	bool ForceInvalidate(std::shared_ptr<PassDesc> data) { return true; }
+	bool ForceInvalidate(std::vector<std::shared_ptr<PassDesc>>& data) { return true; }
+
 	void CreateData(std::shared_ptr<PassDesc> data); 
 	void CreateDataOverride(std::shared_ptr<PassDesc> data); 
 	
