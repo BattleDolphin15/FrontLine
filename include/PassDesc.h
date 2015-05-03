@@ -14,15 +14,19 @@ protected:
 
 	const char* m_Name;
 	fxState m_Flag;
-
+	//use multiple parents
 	std::weak_ptr<Pass> m_Parent;
 	//std::list<std::weak_ptr<Pass>> m_Parents; //have multiple parents
 	std::vector<std::weak_ptr<PassDesc>> m_Owners; //use weak_ptrs instead of dependency
 	//std::vector<Dependency> m_Data;
 	std::vector<std::weak_ptr<PassDesc>> m_Data;
+	
+	uint32 m_Mask;
 public:
 	PassDesc(fxState flag,const char* name = NULL);
 	virtual ~PassDesc();
+	
+	//PassDesc& operator=(PassDesc& other);
 
 	virtual void SetName(const char* name) {m_Name = name;}
 	virtual const char* GetName() {return m_Name;}
@@ -33,13 +37,20 @@ public:
 	virtual void SetActive(bool active) { m_Active = active; }
 	virtual bool IsActive() const { return m_Active; }
 
-	virtual bool IsValid() const {return m_Validated;} //<-- put these as const funcs so const refs can access them
+	virtual bool IsValid() const { return m_Validated; } //<-- put these as const funcs so const refs can access them
 
 	virtual bool HasChanged() const { return m_Modified; }
 
 	virtual void SetParent(std::shared_ptr<Pass> parent) {m_Parent = parent;}
+	
+	void SetDataMask(uint32 mask);
+	uint32 GetDataMask() const;
+	
+	std::shared_ptr<PassDesc> Copy();
 protected:
 	virtual void SetValidated(bool validated) { m_Validated = validated; }
+	
+	virtual void NotifyChanged() { m_Modified = true; }
 public:
 	virtual bool Attach(std::shared_ptr<PassDesc> data);
 	virtual bool Attach(fxState flag, const char* name = NULL);
@@ -78,7 +89,14 @@ public:
 
 	//TODO: needs to be fixed
 	virtual void ClearAttachments() { m_Data.clear(); }
+	
 	virtual void ClearOwners() { m_Owners.clear(); }
+	
+	void SaveAttachmentData();
+	
+	void ClearAttachmentData();
+	
+	bool RecalculateAttachments();
 
 	std::vector<std::shared_ptr<PassDesc>> GetVecFromData();
 	std::vector<const std::shared_ptr<PassDesc>> GetVecFromData() const;

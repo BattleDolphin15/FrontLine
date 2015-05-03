@@ -1,5 +1,5 @@
 #pragma once
-#include "PassDesc.h"
+#include "PassState.h"
 
 class SamplerState
 {
@@ -44,8 +44,6 @@ public:
 	virtual ~Resource();
 	
 	virtual void ValidateAttachments();
-	virtual bool Validate(); //if is rendertex, add to fbo
-	virtual bool Invalidate(); //if is rendertex, remove from fbo
 	
 	virtual void SetSamplerState(std::shared_ptr<SamplerState> sstate) { m_Data.samplerState = sstate; }
 	virtual std::shared_ptr<SamplerState> GetSamplerState() { return m_Data.samplerState; }

@@ -1,4 +1,5 @@
 #pragma once
+#include "EffectConfig.h"
 #include "EffectCore.h"
 #include "Pass.h"
 #include "PassDesc.h"

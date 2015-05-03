@@ -1,0 +1,24 @@
+<NotepadPlus>
+    <Session activeView="0">
+        <mainView activeIndex="10">
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="472" startPos="327" endPos="327" selMode="0" lang="C++" encoding="-1" filename="J:\Engine Systems\Material Module\include\EffectManager.h" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="552" startPos="73" endPos="73" selMode="0" lang="C++" encoding="-1" filename="J:\Engine Systems\Material Module\include\EffectFactory.h" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="720" startPos="257" endPos="257" selMode="0" lang="C++" encoding="-1" filename="J:\Engine Systems\Material Module\include\PassShader.h" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="1056" startPos="512" endPos="512" selMode="0" lang="C++" encoding="-1" filename="J:\Engine Systems\Material Module\src\PassShader.cpp" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="600" startPos="12" endPos="12" selMode="0" lang="C++" encoding="-1" filename="J:\Engine Systems\Material Module\include\PassGPUPipeline.h" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="832" startPos="28" endPos="28" selMode="0" lang="C++" encoding="-1" filename="J:\Engine Systems\Material Module\include\PassResource.h" />
+            <File firstVisibleLine="9" xOffset="0" scrollWidth="1432" startPos="483" endPos="483" selMode="0" lang="C++" encoding="-1" filename="J:\Engine Systems\Material Module\src\PassResource.cpp" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="704" startPos="1486" endPos="1486" selMode="0" lang="C++" encoding="-1" filename="J:\Engine Systems\Material Module\include\PassState.h" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="656" startPos="22" endPos="22" selMode="0" lang="C++" encoding="-1" filename="J:\Engine Systems\Material Module\src\PassState.cpp" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="688" startPos="80" endPos="80" selMode="0" lang="C++" encoding="-1" filename="J:\Engine Systems\Material Module\include\PassFrameBufferObject.h" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="1" startPos="0" endPos="0" selMode="0" lang="C++" encoding="-1" filename="J:\Engine Systems\Material Module\src\PassFrameBufferObject.cpp" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="464" startPos="304" endPos="304" selMode="0" lang="C++" encoding="-1" filename="J:\Engine Systems\Material Module\include\PassRenderingMode.h" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="640" startPos="454" endPos="454" selMode="0" lang="C++" encoding="-1" filename="J:\Engine Systems\Material Module\include\PassStateGroup.h" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="576" startPos="725" endPos="725" selMode="0" lang="C++" encoding="-1" filename="J:\Engine Systems\Material Module\src\PassStateGroup.cpp" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="472" startPos="396" endPos="396" selMode="0" lang="C++" encoding="-1" filename="J:\Engine Systems\Material Module\include\PassShaderParameter.h" />
+            <File firstVisibleLine="0" xOffset="0" scrollWidth="568" startPos="469" endPos="469" selMode="0" lang="C++" encoding="-1" filename="J:\Engine Systems\Material Module\src\PassShaderParameter.cpp" />
+            <File firstVisibleLine="913" xOffset="0" scrollWidth="1736" startPos="42461" endPos="42461" selMode="0" lang="C++" encoding="-1" filename="J:\reference\nvFX-master\FxLib\Fx.h" />
+        </mainView>
+        <subView activeIndex="0" />
+    </Session>
+</NotepadPlus>

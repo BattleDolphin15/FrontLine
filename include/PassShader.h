@@ -12,14 +12,13 @@ protected:
 		int startLineNumber;
 		int totalLines;
 	}
-	std::vectpr<CodeInfo> m_ModifiedCodeInfo;
+	std::vector<CodeInfo> m_ModifiedCodeInfo;
 
 	std::string m_Code;
 	std::string m_ModifiedCode;
 public:
-	Shader(const char* name)
-		: PassDesc(FX_SHADER_DESC_FLAG, name) {}
-	virtual ~Shader() {}
+	Shader(const char* name);
+	virtual ~Shader();
 	
 	virtual const char* GetShaderCode() const { return m_Code.c_str(); }
 	virtual int GetShaderCodeSize() const { return (int)m_Code.size(); }
